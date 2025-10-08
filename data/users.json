@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "binanceId": "alica",
+    "tronAddress": "TSpNsgHivnd9Q9qbKeR3N2a2CnhPHGTGrR",
+    "email": "nabibux0782@gmail.com",
+    "isVerified": true,
+    "balance": 998,
+    "createdAt": "2025-10-08T14:51:59.409Z",
+    "lastActive": "2025-10-08T14:51:59.409Z"
+  },
+  {
+    "id": 2,
+    "binanceId": "bob",
+    "tronAddress": "TWNpRXDLLvSnZLsm7pvY8Y2NkK9gHzmhgW",
+    "email": "rehanpardesi2018@gmail.com",
+    "isVerified": true,
+    "balance": 1002,
+    "createdAt": "2025-10-08T14:52:43.681Z",
+    "lastActive": "2025-10-08T14:52:43.682Z"
+  }
+]

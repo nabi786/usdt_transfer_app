@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRC20 Demo - USDT Transfer System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .balance-display {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .balance-display h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .notifications {
+            grid-column: 1 / -1;
+        }
+
+        .notification-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-item.unread {
+            background: #e3f2fd;
+            border-left-color: #2196F3;
+        }
+
+        .notification-content h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .notification-content p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .notification-time {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-pending { background-color: #ffc107; }
+        .status-completed { background-color: #28a745; }
+        .status-failed { background-color: #dc3545; }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .transfer-history {
+            grid-column: 1 / -1;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-details {
+            flex: 1;
+        }
+
+        .history-amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .history-amount.sent {
+            color: #dc3545;
+        }
+
+        .history-amount.received {
+            color: #28a745;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-coins"></i> TRC20 Demo - USDT Transfer</h1>
+            <p>Transfer DUSDT tokens between Binance IDs with real-time notifications</p>
+        </div>
+
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+
+        <div class="main-content">
+            <!-- User Registration -->
+            <div class="card">
+                <h2><i class="fas fa-user-plus"></i> Register User</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="binanceId">Binance ID</label>
+                        <input type="text" id="binanceId" name="binanceId" placeholder="Enter your Binance ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tronAddress">Tron Address</label>
+                        <input type="text" id="tronAddress" name="tronAddress" placeholder="Enter your Tron address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <button type="submit" class="btn">Register</button>
+                </form>
+            </div>
+
+            <!-- Transfer Form -->
+            <div class="card">
+                <h2><i class="fas fa-exchange-alt"></i> Transfer Tokens</h2>
+                <form id="transferForm">
+                    <div class="form-group">
+                        <label for="fromBinanceId">From Binance ID</label>
+                        <input type="text" id="fromBinanceId" name="fromBinanceId" placeholder="Your Binance ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="toBinanceId">To Binance ID</label>
+                        <input type="text" id="toBinanceId" name="toBinanceId" placeholder="Recipient's Binance ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (DUSDT)</label>
+                        <input type="number" id="amount" name="amount" step="0.000001" min="0" placeholder="0.000000" required>
+                    </div>
+                    <button type="submit" class="btn">Transfer</button>
+                </form>
+            </div>
+
+            <!-- Balance Display -->
+            <div class="card">
+                <h2><i class="fas fa-wallet"></i> Balance</h2>
+                <div class="balance-display">
+                    <h3>DUSDT Balance</h3>
+                    <div class="balance-amount" id="balanceAmount">0.000000</div>
+                </div>
+                <div class="form-group">
+                    <label for="balanceBinanceId">Check Balance for Binance ID</label>
+                    <input type="text" id="balanceBinanceId" placeholder="Enter Binance ID">
+                    <button type="button" class="btn" onclick="checkBalance()">Check Balance</button>
+                </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="card notifications">
+                <h2><i class="fas fa-bell"></i> Notifications</h2>
+                <div id="notificationsList">
+                    <p>No notifications yet</p>
+                </div>
+            </div>
+
+            <!-- Transfer History -->
+            <div class="card transfer-history">
+                <h2><i class="fas fa-history"></i> Transfer History</h2>
+                <div class="form-group">
+                    <label for="historyBinanceId">View History for Binance ID</label>
+                    <input type="text" id="historyBinanceId" placeholder="Enter Binance ID">
+                    <button type="button" class="btn" onclick="loadTransferHistory()">Load History</button>
+                </div>
+                <div id="transferHistoryList">
+                    <p>No transfer history yet</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="bundle.js"></script>
+</body>
+</html>
+
+
+
+
+
+
