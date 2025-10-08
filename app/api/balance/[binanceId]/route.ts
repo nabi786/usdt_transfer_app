@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
+// @ts-ignore - TronWeb types are defined in types/tronweb.d.ts
 import TronWeb from 'tronweb'
 
 // File-based storage
@@ -26,8 +27,20 @@ const contractABI = [
 
 const contractAddress = 'TAYVYDTXA11rpRzqu8jQb5aGmbJAr1RnQo'
 
+// Type definitions
+interface User {
+  id: number
+  binanceId: string
+  tronAddress: string
+  email: string
+  isVerified: boolean
+  balance: number
+  createdAt: string
+  lastActive: string
+}
+
 // Helper functions
-function readUsers() {
+function readUsers(): User[] {
   try {
     return JSON.parse(fs.readFileSync(usersFile, 'utf8'))
   } catch {
@@ -85,8 +98,9 @@ export async function GET(
     })
   } catch (error) {
     console.error('Balance check error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to check balance: ' + error.message },
+      { error: 'Failed to check balance: ' + errorMessage },
       { status: 500 }
     )
   }

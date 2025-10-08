@@ -76,7 +76,8 @@ export default function BalanceCard({ currentUser }: BalanceCardProps) {
       }
     } catch (err) {
       console.error('Error checking contract balance:', err)
-      setMessage('Failed to check contract balance: ' + err.message)
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      setMessage('Failed to check contract balance: ' + errorMessage)
     } finally {
       setLoading(false)
     }

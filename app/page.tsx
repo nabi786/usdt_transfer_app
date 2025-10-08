@@ -10,8 +10,19 @@ import TransferHistory from '@/components/TransferHistory'
 import WalletConnection from '@/components/WalletConnection'
 import { useSocket } from '@/hooks/useSocket'
 
+interface User {
+  id: number
+  binanceId: string
+  tronAddress: string
+  email: string
+  isVerified: boolean
+  balance: number
+  createdAt: string
+  lastActive: string
+}
+
 export default function Home() {
-  const [currentUser, setCurrentUser] = useState(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [activeTab, setActiveTab] = useState('wallet')
   const [walletAddress, setWalletAddress] = useState('')
   const socket = useSocket()
@@ -31,12 +42,12 @@ export default function Home() {
     }
   }, [socket, currentUser])
 
-  const handleUserRegistered = (user) => {
+  const handleUserRegistered = (user: User) => {
     setCurrentUser(user)
     setActiveTab('transfer')
   }
 
-  const handleWalletConnected = (address) => {
+  const handleWalletConnected = (address: string) => {
     setWalletAddress(address)
     setActiveTab('register')
   }

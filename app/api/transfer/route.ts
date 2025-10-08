@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
+// @ts-ignore - TronWeb types are defined in types/tronweb.d.ts
 import TronWeb from 'tronweb'
 
 // File-based storage
@@ -9,8 +10,33 @@ const usersFile = path.join(dataDir, 'users.json')
 const transfersFile = path.join(dataDir, 'transfers.json')
 const notificationsFile = path.join(dataDir, 'notifications.json')
 
+// Type definitions
+interface User {
+  id: number
+  binanceId: string
+  tronAddress: string
+  email: string
+  isVerified: boolean
+  balance: number
+  createdAt: string
+  lastActive: string
+}
+
+interface Transfer {
+  id: number
+  fromBinanceId: string
+  toBinanceId: string
+  fromTronAddress: string
+  toTronAddress: string
+  amount: number
+  transactionHash: string
+  status: string
+  createdAt: string
+  completedAt: string | null
+}
+
 // Helper functions
-function readUsers() {
+function readUsers(): User[] {
   try {
     return JSON.parse(fs.readFileSync(usersFile, 'utf8'))
   } catch {
@@ -18,11 +44,11 @@ function readUsers() {
   }
 }
 
-function writeUsers(users) {
+function writeUsers(users: User[]): void {
   fs.writeFileSync(usersFile, JSON.stringify(users, null, 2))
 }
 
-function readTransfers() {
+function readTransfers(): Transfer[] {
   try {
     return JSON.parse(fs.readFileSync(transfersFile, 'utf8'))
   } catch {
@@ -30,11 +56,28 @@ function readTransfers() {
   }
 }
 
-function writeTransfers(transfers) {
+function writeTransfers(transfers: Transfer[]): void {
   fs.writeFileSync(transfersFile, JSON.stringify(transfers, null, 2))
 }
 
-function readNotifications() {
+interface Notification {
+  id: number
+  userId?: number
+  binanceId: string
+  type: string
+  title: string
+  message: string
+  amount?: number
+  fromBinanceId?: string
+  toBinanceId?: string
+  transactionHash?: string
+  transferId?: number
+  isRead: boolean
+  isEmailSent?: boolean
+  createdAt: string
+}
+
+function readNotifications(): Notification[] {
   try {
     return JSON.parse(fs.readFileSync(notificationsFile, 'utf8'))
   } catch {
@@ -42,7 +85,7 @@ function readNotifications() {
   }
 }
 
-function writeNotifications(notifications) {
+function writeNotifications(notifications: Notification[]): void {
   fs.writeFileSync(notificationsFile, JSON.stringify(notifications, null, 2))
 }
 
@@ -139,14 +182,16 @@ export async function POST(request: NextRequest) {
         await contract.registerBinanceUser(fromUser.tronAddress, fromUser.binanceId).send()
         console.log('✅ Registered sender in contract:', fromUser.binanceId)
       } catch (regError) {
-        console.log('ℹ️ Sender might already be registered:', regError.message)
+        const errorMessage = regError instanceof Error ? regError.message : 'Unknown error'
+        console.log('ℹ️ Sender might already be registered:', errorMessage)
       }
 
       try {
         await contract.registerBinanceUser(toUser.tronAddress, toUser.binanceId).send()
         console.log('✅ Registered receiver in contract:', toUser.binanceId)
       } catch (regError) {
-        console.log('ℹ️ Receiver might already be registered:', regError.message)
+        const errorMessage = regError instanceof Error ? regError.message : 'Unknown error'
+        console.log('ℹ️ Receiver might already be registered:', errorMessage)
       }
       
       // Convert amount to contract units (6 decimals)
@@ -240,8 +285,9 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Transfer error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Transfer failed: ' + error.message },
+      { error: 'Transfer failed: ' + errorMessage },
       { status: 500 }
     )
   }

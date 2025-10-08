@@ -6,8 +6,19 @@ import path from 'path'
 const dataDir = path.join(process.cwd(), 'data')
 const notificationsFile = path.join(dataDir, 'notifications.json')
 
+// Type definitions
+interface Notification {
+  id: number
+  binanceId: string
+  type: string
+  title: string
+  message: string
+  isRead: boolean
+  createdAt: string
+}
+
 // Helper functions
-function readNotifications() {
+function readNotifications(): Notification[] {
   try {
     return JSON.parse(fs.readFileSync(notificationsFile, 'utf8'))
   } catch {
@@ -48,8 +59,9 @@ export async function GET(
     })
   } catch (error) {
     console.error('Notifications error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to get notifications: ' + error.message },
+      { error: 'Failed to get notifications: ' + errorMessage },
       { status: 500 }
     )
   }

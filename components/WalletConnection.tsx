@@ -209,7 +209,8 @@ export default function WalletConnection({ onWalletConnected }: WalletConnection
       }
     } catch (error) {
       console.error('Error connecting wallet:', error)
-      alert('Error connecting wallet: ' + error.message)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert('Error connecting wallet: ' + errorMessage)
     } finally {
       setLoading(false)
     }
@@ -249,14 +250,14 @@ export default function WalletConnection({ onWalletConnected }: WalletConnection
       }
       
       // Method 2: Check for TronLink in extensions
-      if (window.chrome && window.chrome.runtime) {
+      if ((window as any).chrome && (window as any).chrome.runtime) {
         console.log('Checking Chrome extensions...')
         // This won't work due to security, but we can try
       }
       
       // Method 3: Check for TronLink events
       console.log('Listening for TronLink events...')
-      const handleMessage = (event) => {
+      const handleMessage = (event: MessageEvent) => {
         if (event.data && event.data.message && event.data.message.action === 'setAccount') {
           console.log('TronLink message received')
           setIsTronLinkInstalled(true)

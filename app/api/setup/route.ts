@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+// @ts-ignore - TronWeb types are defined in types/tronweb.d.ts
 import TronWeb from 'tronweb'
 
 // Initialize TronWeb
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     // Step 2: Mint 1000 DUSDT tokens for the user
     console.log('💰 Minting 1000 DUSDT tokens...')
-    const mintAmount = tronWeb.toBigNumber(1000).times(1000000) // 1000 USDT with 6 decimals
+    const mintAmount = 1000 * 1000000 // 1000 USDT with 6 decimals
     const mintTx = await contract.mint(tronAddress, mintAmount).send()
     console.log('✅ Tokens minted:', mintTx)
 
@@ -80,10 +81,11 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ Setup error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       { 
-        error: 'Setup failed: ' + error.message,
-        details: error.toString()
+        error: 'Setup failed: ' + errorMessage,
+        details: error instanceof Error ? error.toString() : String(error)
       },
       { status: 500 }
     )

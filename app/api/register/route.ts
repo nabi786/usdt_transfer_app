@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
+// @ts-ignore - TronWeb types are defined in types/tronweb.d.ts
 import TronWeb from 'tronweb'
 
 // Initialize TronWeb
@@ -51,8 +52,20 @@ if (!fs.existsSync(notificationsFile)) {
   fs.writeFileSync(notificationsFile, JSON.stringify([]))
 }
 
+// Type definitions
+interface User {
+  id: number
+  binanceId: string
+  tronAddress: string
+  email: string
+  isVerified: boolean
+  balance: number
+  createdAt: string
+  lastActive: string
+}
+
 // Helper functions
-function readUsers() {
+function readUsers(): User[] {
   try {
     return JSON.parse(fs.readFileSync(usersFile, 'utf8'))
   } catch {
@@ -60,7 +73,7 @@ function readUsers() {
   }
 }
 
-function writeUsers(users) {
+function writeUsers(users: User[]): void {
   fs.writeFileSync(usersFile, JSON.stringify(users, null, 2))
 }
 
@@ -145,8 +158,9 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Registration error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Registration failed: ' + error.message },
+      { error: 'Registration failed: ' + errorMessage },
       { status: 500 }
     )
   }
